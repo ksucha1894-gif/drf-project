@@ -25,6 +25,9 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
+    course = models.ForeignKey(
+        Course, related_name="lessons", on_delete=models.CASCADE, null=True, blank=True
+    )
     name = models.CharField(
         max_length=150, verbose_name="Название", help_text="Укажите название урока"
     )

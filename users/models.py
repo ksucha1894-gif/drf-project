@@ -4,11 +4,9 @@ from django.db import models
 
 class User(AbstractBaseUser):
     username = None
-
     email = models.EmailField(
         unique=True, verbose_name="Почта", help_text="Укажите почту"
     )
-
     phone = models.CharField(
         max_length=35,
         blank=True,
@@ -33,3 +31,17 @@ class User(AbstractBaseUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    payment_date = models.DateField()
+    paid_course = models.ForeignKey('lms.Course', null=True, blank=True, on_delete=models.SET_NULL)
+    paid_lesson = models.ForeignKey('lms.Lesson', null=True, blank=True, on_delete=models.SET_NULL)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=20,
+                                        choices=[('cash', 'Наличные'), ('transfer', 'Перевод на счет')])
+
+    class Meta:
+        db_table = 'payment'
+        ordering = ['-payment_date']

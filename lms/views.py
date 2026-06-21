@@ -15,7 +15,7 @@ from .serializers import CourseSerializer, LessonSerializer, CourseDetailSeriali
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     filter_backends = [filters.OrderingFilter]
-    filterset_fields = ('course', 'lesson', 'payment_method')
+    filterset_fields = ("course", "lesson", "payment_method")
 
     def get_serializer_class(self):
         if self.action == "retrieve":

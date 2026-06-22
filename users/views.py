@@ -1,14 +1,11 @@
-from rest_framework.generics import (
-    CreateAPIView,
-    DestroyAPIView,
-    ListAPIView,
-    RetrieveAPIView,
-    UpdateAPIView,
-)
-from rest_framework.viewsets import ModelViewSet
 from rest_framework import filters
-from users.models import Payment, User
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
 from rest_framework.permissions import AllowAny
+from rest_framework.viewsets import ModelViewSet
+
+from users.models import Payment, User
 
 from .serializers import PaymentSerializer, UserSerializer
 

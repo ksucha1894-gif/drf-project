@@ -5,9 +5,13 @@ from rest_framework.generics import (CreateAPIView, DestroyAPIView,
 from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson
+from users.permissions import IsModer
 
 from .serializers import (CourseDetailSerializer, CourseSerializer,
                           LessonSerializer)
+
+from users.permissions import IsModer
+from rest_framework.permissions import IsAuthenticated
 
 
 class CourseViewSet(ModelViewSet):
@@ -35,6 +39,10 @@ class LessonCreateApiView(CreateAPIView):
         lesson.owner = self.request.user
         lesson.save()
 
+    def get_permissions(self):
+        self.permission_classes = [IsModer, IsAuthenticated]
+        return super().get_permissions()
+
 
 class LessonListApiView(ListAPIView):
     queryset = Lesson.objects.all()
@@ -54,3 +62,9 @@ class LessonUpdateApiView(UpdateAPIView):
 class LessonDestroyApiView(DestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+
+
+    def get_permissions(self):
+        # Ограничиваем удаление только не для модераторов
+        self.permission_classes = [IsAuthenticated, ~IsModer]
+        return super().get_permissions()

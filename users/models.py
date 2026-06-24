@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
 
@@ -7,7 +7,7 @@ class UserManager(BaseUserManager):
         return self.get(email=email)
 
 
-class User(AbstractBaseUser):
+class User(AbstractUser):
     username = None
     email = models.EmailField(
         unique=True, verbose_name="Почта", help_text="Укажите почту"

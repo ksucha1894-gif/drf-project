@@ -31,10 +31,13 @@ class CourseViewSet(ModelViewSet):
         if self.action == "create":
             self.permission_classes = (~IsModer,)
         elif self.action in ["update", "retrieve"]:
-            self.permission_classes = (IsModer, IsAuthenticated)
+            self.permission_classes = (IsModer, IsAuthenticated, IsOwner)
         elif self.action == "destroy":
-            self.permission_classes = (~IsModer, IsAuthenticated)
+            self.permission_classes = (IsOwner, IsAuthenticated)
         return super().get_permissions()
+
+    def get_queryset(self):
+        return Course.objects.filter(owner=self.request.user)
 
 
 class LessonCreateApiView(CreateAPIView):

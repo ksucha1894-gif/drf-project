@@ -1,15 +1,19 @@
 from rest_framework import filters
-from rest_framework.generics import (CreateAPIView, DestroyAPIView,
-                                     ListAPIView, RetrieveAPIView,
-                                     UpdateAPIView)
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson
+from lms.paginators import MyPagination
 from users.permissions import IsModer, IsOwner
 
-from .serializers import (CourseDetailSerializer, CourseSerializer,
-                          LessonSerializer)
+from .serializers import CourseDetailSerializer, CourseSerializer, LessonSerializer
 
 
 class CourseViewSet(ModelViewSet):
@@ -57,6 +61,7 @@ class LessonCreateApiView(CreateAPIView):
 class LessonListApiView(ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    pagination_class = MyPagination
 
     def get_permissions(self):
         self.permission_classes = [IsModer, IsAuthenticated]

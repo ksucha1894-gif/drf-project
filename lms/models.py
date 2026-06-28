@@ -1,7 +1,5 @@
 from django.db import models
 
-from users.models import User
-
 
 class Course(models.Model):
     name = models.CharField(
@@ -22,7 +20,7 @@ class Course(models.Model):
     )
 
     owner = models.ForeignKey(
-        User,
+        "users.User",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -64,7 +62,7 @@ class Lesson(models.Model):
     )
 
     owner = models.ForeignKey(
-        User,
+        "users.User",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

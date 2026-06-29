@@ -7,5 +7,7 @@ class URLValidator:
 
     def __call__(self, data):
         url = data.get(self.field)
-        if url and not url.startswith("https://www.youtube.com"):
-            raise serializers.ValidationError("Ссылка должна вести на youtube.com")
+        if url and "youtube.com" not in url:
+            raise serializers.ValidationError(
+                "Ссылка должна вести только на youtube.com"
+            )

@@ -1,11 +1,7 @@
 from rest_framework import filters
-from rest_framework.generics import (
-    CreateAPIView,
-    DestroyAPIView,
-    ListAPIView,
-    RetrieveAPIView,
-    UpdateAPIView,
-)
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -13,13 +9,15 @@ from lms.models import Course, Lesson
 from lms.paginators import MyPagination
 from users.permissions import IsModer, IsOwner
 
-from .serializers import CourseDetailSerializer, CourseSerializer, LessonSerializer
+from .serializers import (CourseDetailSerializer, CourseSerializer,
+                          LessonSerializer)
 
 
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     filter_backends = [filters.OrderingFilter]
     filterset_fields = ("course", "lesson", "payment_method")
+    pagination_class = MyPagination
 
     def get_serializer_class(self):
         if self.action == "retrieve":

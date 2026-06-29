@@ -32,3 +32,16 @@ class SubscriptionTestCase(APITestCase):
         self.assertFalse(
             Subscription.objects.filter(user=self.user, course=self.course).exists()
         )
+
+    def test_subscribe_with_invalid_course_id(self):
+        response = self.client.post(
+            reverse("users:user_subscribe"), {"course_id": 9999}
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_subscribe_without_authentication(self):
+        self.client.logout()  # Убираем аутентификацию
+        response = self.client.post(
+            reverse("users:user_subscribe"), {"course_id": self.course.id}
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

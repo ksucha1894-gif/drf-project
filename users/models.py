@@ -64,7 +64,14 @@ class User(AbstractUser):
 
 
 class Payment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        verbose_name="Пользователь",
+        help_text="Укажите пользователя",
+    )
     payment_date = models.DateField()
     paid_course = models.ForeignKey(
         "lms.Course", null=True, blank=True, on_delete=models.SET_NULL
@@ -76,10 +83,41 @@ class Payment(models.Model):
     payment_method = models.CharField(
         max_length=20, choices=[("cash", "Наличные"), ("transfer", "Перевод на счет")]
     )
+    stripe_product_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="ID продукта",
+        help_text="Укажите ID продукта",
+    )
+    stripe_price_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="ID цены",
+        help_text="Укажите ID цены",
+    )
+    stripe_session_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="ID сессии",
+        help_text="Укажите ID сессии",
+    )
+    link = models.URLField(
+        max_length=400,
+        blank=True,
+        null=True,
+        verbose_name="Ссылка на оплату",
+        help_text="Укажите ссылку на оплату",
+    )
 
     class Meta:
         db_table = "payment"
         ordering = ["-payment_date"]
+
+    def __str__(self):
+        return f"Payment: {self.amount} by {self.user}"
 
 
 class Subscription(models.Model):

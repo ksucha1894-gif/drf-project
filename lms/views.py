@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
@@ -13,6 +15,12 @@ from .serializers import (CourseDetailSerializer, CourseSerializer,
                           LessonSerializer)
 
 
+@method_decorator(
+    name="list",
+    decorator=swagger_auto_schema(
+        operation_description="description from swagger_auto_schema via method_decorator"
+    ),
+)
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     filter_backends = [filters.OrderingFilter]

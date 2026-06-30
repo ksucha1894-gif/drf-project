@@ -17,18 +17,18 @@ from users.services import create_stripe_price, create_stripe_session
 from .serializers import PaymentSerializer, UserSerializer
 
 
-class PaymentViewSet(ModelViewSet):
-    queryset = Payment.objects.all()
-    filter_backends = [filters.OrderingFilter]
-    filterset_fields = ("user", "course", "lesson", "payment_method")
-    ordering_fields = ("payment_date",)
-
-    @swagger_auto_schema(
-        operation_description="Получение списка платежей",
-        responses={200: PaymentSerializer(many=True)},
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+# class PaymentViewSet(ModelViewSet):
+#     queryset = Payment.objects.all()
+#     filter_backends = [filters.OrderingFilter]
+#     filterset_fields = ("user", "course", "lesson", "payment_method")
+#     ordering_fields = ("payment_date",)
+#
+#     @swagger_auto_schema(
+#         operation_description="Получение списка платежей",
+#         responses={200: PaymentSerializer(many=True)},
+#     )
+#     def list(self, request, *args, **kwargs):
+#         return super().list(request, *args, **kwargs)
 
 
 class PaymentCreateApiView(CreateAPIView):

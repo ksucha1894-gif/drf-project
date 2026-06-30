@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters, status
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
@@ -21,38 +23,121 @@ class PaymentViewSet(ModelViewSet):
     filterset_fields = ("user", "course", "lesson", "payment_method")
     ordering_fields = ("payment_date",)
 
+    @swagger_auto_schema(
+        operation_description="Получение списка платежей",
+        responses={200: PaymentSerializer(many=True)},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class PaymentCreateApiView(CreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
-    def perform_create(self, serializer):
+    @swagger_auto_schema(
+        operation_description="Создание платежа",
+        request_body=PaymentSerializer,
+        responses={201: PaymentSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         payment = serializer.save(user=self.request.user)
-        price = create_stripe_price(payment)
-        stripe_session_id, payment_link = create_stripe_session(price)
-        payment.session_id = stripe_session_id
-        payment.link = payment_link
-        payment.save()
+
+        try:
+            product = create_stripe_product("Product Name", "Product Description")
+            payment.stripe_product_id = product.id
+            payment.save()
+
+            unit_amount = int(payment.amount * 100)
+            price = create_stripe_price(payment.stripe_product_id, unit_amount)
+            payment.stripe_price_id = price.id  # Сохраняем цену
+
+            stripe_session = create_stripe_session(price.id)
+            payment.stripe_session_id = stripe_session.id
+            payment.link = stripe_session.url
+            payment.save()
+
+            return Response(
+                {"payment_link": payment.link, **serializer.data}, status=201
+            )
+        except stripe.error.StripeError as e:
+            return Response({"error": str(e)}, status=500)
 
 
 class PaymentListApiView(ListAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
+    @swagger_auto_schema(
+        operation_description="Получение списка платежей",
+        responses={
+            200: PaymentSerializer(many=True),
+            404: openapi.Response("Не найдено"),
+        },
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class PaymentRetrieveApiView(RetrieveAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+
+    @swagger_auto_schema(
+        operation_description="Изменение платежей",
+        request_body=PaymentSerializer,
+        responses={201: PaymentSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class PaymentUpdateApiView(UpdateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
+    @swagger_auto_schema(
+        operation_description="Изменение платежей",
+        request_body=PaymentSerializer,
+        responses={200: PaymentSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
 
 class PaymentDestroyApiView(DestroyAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+
+    @swagger_auto_schema(
+        operation_description="Изменение платежей",
+        responses={204: PaymentSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+
+class PaymentStatusApiView(APIView):
+
+    @swagger_auto_schema(
+        operation_description="Проверка платежей",
+        responses={200: PaymentSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
+    def get(self, request, *args, **kwargs):
+        stripe_session_id = request.query_params.get("stripe_session_id")
+        if not stripe_session_id:
+            return Response({"error": "stripe_session_id is required"}, status=400)
+
+        try:
+            session = stripe.checkout.Session.retrieve(stripe_session_id)
+            payment = Payment.objects.get(stripe_session_id=stripe_session_id)
+            payment.status = session.status
+            payment.save()
+            return Response({"status": payment.status}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
 
 class UserCreateApiView(CreateAPIView):
@@ -60,6 +145,11 @@ class UserCreateApiView(CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(
+        operation_description="Создание пользователя",
+        request_body=UserSerializer,
+        responses={201: UserSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
     def perform_create(self, serializer):
         user = serializer.save()  # Сохраняем пользователя без параметра is_active
         user.is_active = True  # Теперь мы отдельно устанавливаем is_active
@@ -71,6 +161,11 @@ class UserListApiView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @swagger_auto_schema(
+        operation_description="Просмотр пользователей",
+        request_body=UserSerializer,
+        responses={201: UserSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
     def get_permissions(self):
         self.permission_classes = [
             IsAuthenticated,
@@ -82,6 +177,10 @@ class UserRetrieveApiView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @swagger_auto_schema(
+        operation_description="Получение данных пользователя",
+        responses={200: UserSerializer, 404: openapi.Response("Не найдено")},
+    )
     def get_permissions(self):
         self.permission_classes = [
             IsAuthenticated,
@@ -93,6 +192,11 @@ class UserUpdateApiView(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @swagger_auto_schema(
+        operation_description="Изменение пользователя",
+        request_body=UserSerializer,
+        responses={200: UserSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
     def get_permissions(self):
         self.permission_classes = [
             IsAuthenticated,
@@ -104,6 +208,10 @@ class UserDestroyApiView(DestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @swagger_auto_schema(
+        operation_description="Удаление пользователя",
+        responses={204: UserSerializer, 400: openapi.Response("Ошибка валидации")},
+    )
     def get_permissions(self):
         self.permission_classes = [
             IsAuthenticated,
@@ -115,6 +223,18 @@ class SubscriptionAPIView(APIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @swagger_auto_schema(
+        operation_description="Проверяем подписку пользователя",
+        manual_parameters=[
+            openapi.Parameter(
+                "course_id",
+                openapi.IN_QUERY,
+                description="ID курса",
+                type=openapi.TYPE_INTEGER,
+            )
+        ],
+        responses={200: "Успешно", 400: "Ошибка валидации"},
+    )
     def post(self, request, *args, **kwargs):  # Добавляем self
         user = request.user  # Получаем текущего пользователя
         course_id = request.data.get("course_id")  # Получаем ID курса из запроса

@@ -1,5 +1,7 @@
 import stripe
 
+from config import API_SECRET_KEY
+
 stripe.api_key = API_SECRET_KEY
 
 

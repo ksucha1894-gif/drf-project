@@ -7,15 +7,16 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
 from users.apps import UsersConfig
 from users.views import (PaymentCreateApiView, PaymentDestroyApiView,
                          PaymentListApiView, PaymentRetrieveApiView,
-                         PaymentUpdateApiView, PaymentViewSet,
+                         PaymentUpdateApiView,
+                         # PaymentViewSet,
                          SubscriptionAPIView, UserCreateApiView,
                          UserDestroyApiView, UserListApiView,
                          UserRetrieveApiView, UserUpdateApiView)
 
 app_name = UsersConfig.name
 
-routers = SimpleRouter()
-routers.register(r"payment", PaymentViewSet)
+# routers = SimpleRouter()
+# routers.register(r"payment", PaymentViewSet)
 
 urlpatterns = [
     path("payment/", PaymentListApiView.as_view(), name="payment_list"),

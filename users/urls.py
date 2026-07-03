@@ -5,10 +5,9 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 from users.apps import UsersConfig
-from users.views import (PaymentCreateApiView, PaymentDestroyApiView,
-                         PaymentListApiView, PaymentRetrieveApiView,
-                         PaymentUpdateApiView,
-                         # PaymentViewSet,
+from users.views import (PaymentCreateApiView,  # PaymentViewSet,
+                         PaymentDestroyApiView, PaymentListApiView,
+                         PaymentRetrieveApiView, PaymentUpdateApiView,
                          SubscriptionAPIView, UserCreateApiView,
                          UserDestroyApiView, UserListApiView,
                          UserRetrieveApiView, UserUpdateApiView)
@@ -57,4 +56,4 @@ urlpatterns = [
     path("user/subscribe/", SubscriptionAPIView.as_view(), name="user_subscribe"),
 ]
 
-urlpatterns += routers.urls
+# urlpatterns += routers.urls

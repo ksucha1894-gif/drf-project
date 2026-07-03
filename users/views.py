@@ -16,7 +16,6 @@ from users.services import create_stripe_price, create_stripe_session
 
 from .serializers import PaymentSerializer, UserSerializer
 
-
 # class PaymentViewSet(ModelViewSet):
 #     queryset = Payment.objects.all()
 #     filter_backends = [filters.OrderingFilter]

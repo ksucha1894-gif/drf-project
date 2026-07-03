@@ -10,6 +10,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson
 from lms.paginators import MyPagination
+from lms.tasks import send_latest_update, send_moderator_email
+from users.models import Subscription
 from users.permissions import IsModer, IsOwner
 
 from .serializers import (CourseDetailSerializer, CourseSerializer,
@@ -40,6 +42,12 @@ class CourseViewSet(ModelViewSet):
         course = serializer.save()
         course.owner = self.request.user
         course.save()
+        # Получаем всех подписчиков курса
+        subscribers = Subscription.objects.filter(course=course)
+        emails = [sub.user.email for sub in subscribers]
+        # Запускаем задачу Celery для отправки писем
+        if emails:
+            send_moderator_email.delay(emails)
 
     def get_permissions(self):
         if self.action == "create":
@@ -67,6 +75,11 @@ class LessonCreateApiView(CreateAPIView):
         lesson = serializer.save()
         lesson.owner = self.request.user
         lesson.save()
+        subscribers = Subscription.objects.filter(lesson=lesson)
+        emails = [sub.user.email for sub in subscribers]
+        # Запускаем задачу Celery для отправки писем
+        if emails:
+            send_moderator_email.delay(emails)
 
     def get_permissions(self):
         self.permission_classes = [~IsModer, IsAuthenticated]
@@ -108,6 +121,15 @@ class LessonRetrieveApiView(RetrieveAPIView):
     def get_queryset(self):
         return Lesson.objects.filter(owner=self.request.user)
 
+    def perform_update(self, serializer):
+        lesson = serializer.save()
+        # Получаем всех подписчиков курса
+        subscribers = Subscription.objects.filter(lesson=lesson)
+        emails = [sub.user.email for sub in subscribers]
+        # Запускаем задачу Celery для отправки писем
+        if emails:
+            send_latest_update.delay(emails)
+
 
 class LessonUpdateApiView(UpdateAPIView):
     queryset = Lesson.objects.all()
@@ -124,6 +146,15 @@ class LessonUpdateApiView(UpdateAPIView):
 
     def get_queryset(self):
         return Lesson.objects.filter(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        lesson = serializer.save()
+        # Получаем всех подписчиков курса
+        subscribers = Subscription.objects.filter(lesson=lesson)
+        emails = [sub.user.email for sub in subscribers]
+        # Запускаем задачу Celery для отправки писем
+        if emails:
+            send_latest_update.delay(emails)
 
 
 class LessonDestroyApiView(DestroyAPIView):

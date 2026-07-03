@@ -6,7 +6,7 @@ authors = [
     {name = "Ксения Рип",email = "ksucha.18.94@gmail.comProfile image"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "django (>=6.0.6,<7.0.0)",
     "djangorestframework (>=3.17.1,<4.0.0)",
@@ -21,7 +21,13 @@ dependencies = [
     "coverage (>=7.14.3,<8.0.0)",
     "u (>=4.0,<5.0)",
     "drf-yasg (>=1.21.15,<2.0.0)",
-    "stripe (>=15.3.0,<16.0.0)"
+    "stripe (>=15.3.0,<16.0.0)",
+    "celery (>=5.5.0)",
+    "django-celery-beat (>=2.9.0,<3.0.0)",
+    "poetry-core (>=2.0.0,<3.0.0)",
+    "redis (>=8.0.1,<9.0.0)",
+
+
 ]
 
 

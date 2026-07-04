@@ -18,7 +18,6 @@ class Course(models.Model):
         verbose_name="Превью",
         help_text="Загрузите превью курса",
     )
-
     owner = models.ForeignKey(
         "users.User",
         on_delete=models.SET_NULL,
@@ -27,6 +26,7 @@ class Course(models.Model):
         verbose_name="Владелец",
         help_text="Укажите владельца курса",
     )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Курс"
@@ -60,7 +60,6 @@ class Lesson(models.Model):
         blank=True,
         null=True,
     )
-
     owner = models.ForeignKey(
         "users.User",
         on_delete=models.SET_NULL,
@@ -69,6 +68,7 @@ class Lesson(models.Model):
         verbose_name="Владелец",
         help_text="Укажите владельца урока",
     )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Урок"

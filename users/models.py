@@ -123,9 +123,7 @@ class Payment(models.Model):
 class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey("lms.Course", on_delete=models.CASCADE)
-    lesson = models.ForeignKey(
-        "lms.Lesson", on_delete=models.CASCADE, null=True, blank=True
-    )
+    lesson = models.ForeignKey("lms.Lesson", on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         unique_together = ("user", "course", "lesson")

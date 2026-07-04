@@ -7,30 +7,44 @@ from django.utils import timezone
 
 from lms.models import Lesson
 from users.models import User
+from django.db.models import Max
+from django.core.exceptions import ObjectDoesNotExist
 
 
 @shared_task
-def send_moderator_email(emails):
-    send_mail(
-        subject="Обновление материалов курса",
-        message="В курсе появились новые уроки, необходимо пройти обучение",
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=emails,
-    )
+def send_moderator_email(course_id):
+    try:
+        course = Course.objects.get(id=course_id)
+        emails = [sub.user.email for sub in course.subscription_set.all()]
 
-
-@shared_task
-def send_latest_update(emails):
-    last_update = Lesson.objects.aggregate(Max("updated_at"))["updated_at__max"]
-    now = timezone.now()
-
-    if last_update and (now - last_update) > timedelta(hours=4):
         send_mail(
-            subject="Последнее обновление",
-            message="Произведено последнее обновление, необходимо пройти обучение",
+            subject="Обновление материалов курса",
+            message="В курсе появились новые уроки, необходимо пройти обучение",
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=emails,
         )
+    except ObjectDoesNotExist:
+        print(f"Course with id {course_id} does not exist.")
+
+
+@shared_task
+def send_latest_update(course_id):
+    try:
+        course = Course.objects.get(id=course_id)
+        now = timezone.now()
+
+        if now - course.updated_at < timedelta(hours=4):
+            emails = [sub.user.email for sub in course.subscription_set.all()]
+
+            send_mail(
+                subject="Последнее обновление",
+                message="Произведено последнее обновление, необходимо пройти обучение",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=emails,
+            )
+    except ObjectDoesNotExist:
+        print(f"Course with id {course_id} does not exist.")
+
 
 @shared_task
 def deactivate_inactive_users():

@@ -98,12 +98,12 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("NAME"),
-        "USER": os.getenv("USER"),
-        "PASSWORD": os.getenv("PASSWORD"),
-        "HOST": os.getenv("HOST"),
-        "PORT": os.getenv("PORT"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("DATABASE_HOST"),
+        "PORT": os.getenv("DATABASE_PORT"),
     }
 }
 
@@ -183,9 +183,9 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-CELERY_BEAT_SCHEDULE={
-    'task-name': {
-        'task': 'lms.tasks.deactivate_inactive_users',  # Путь к задаче
-        'schedule': timedelta(days=30),  # Расписание выполнения задачи (каждые 30 дней)
+CELERY_BEAT_SCHEDULE = {
+    "task-name": {
+        "task": "lms.tasks.deactivate_inactive_users",  # Путь к задаче
+        "schedule": timedelta(days=30),  # Расписание выполнения задачи (каждые 30 дней)
     },
 }

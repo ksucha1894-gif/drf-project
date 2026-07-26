@@ -73,11 +73,11 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf-project:latest .
+        docker build -t drf-project:latest .
 
     - name: Deploy to Remote Server via SSH
       run: |
-        echo "Подключение к удаленному server по SSH..."
+        echo "Подключение к удаленному серверу по SSH..."
         echo "Проверка закрытия портов и настройки Gunicorn + Nginx..."
         echo "Загрузка обновленного Docker-образа проекта..."
         echo "Автоматический перезапуск контейнеров через docker-compose up -d..."

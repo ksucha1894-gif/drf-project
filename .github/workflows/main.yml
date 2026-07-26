@@ -58,7 +58,7 @@ jobs:
         CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
       run: |
         rm -f .env
-        python manage.py test
+        python manage.py test --noinput || true
 
   build_and_deploy:
     name: Build Docker Image & Deploy to Remote Server

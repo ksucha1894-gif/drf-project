@@ -56,7 +56,9 @@ jobs:
         DATABASE_PORT: 5432
         CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
         CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
-      run: python manage.py test
+      run:
+        rm -f .env
+        python manage.py test
 
   build_and_deploy:
     name: Build Docker Image & Deploy to Remote Server

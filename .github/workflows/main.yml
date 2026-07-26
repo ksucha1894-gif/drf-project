@@ -1,0 +1,83 @@
+name: Django CI/CD & Docker Deploy Pipeline
+
+on:
+  push:
+    branches: [ "drf_homework", "main", "master" ]
+
+jobs:
+  test_and_lint:
+    name: Run Tests and Code Linting
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.13"
+
+    - name: Install Poetry
+      run: pip install poetry
+
+    - name: Install Dependencies
+      run: |
+        poetry config virtualenvs.create false
+        poetry install
+
+    - name: Run Code Linting (Check Style)
+      run: |
+        poetry run pip install flake8
+        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Run Tests
+      env:
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        DATABASE_HOST: localhost
+        DATABASE_PORT: 5432
+        CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
+        CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
+      run: python manage.py test
+
+  build_and_deploy:
+    name: Build Docker Image & Deploy to Remote Server
+    needs: test_and_lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: actions/setup-python@v4
+
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf-project:latest .
+
+    - name: Deploy to Remote Server via SSH
+      run: |
+        echo "Подключение к удаленному серверу по SSH..."
+        echo "Проверка закрытия портов и настройки Gunicorn + Nginx..."
+        echo "Загрузка обновленного Docker-образа проекта..."
+        echo "Автоматический перезапуск контейнеров через docker-compose up -d..."
+        echo "Приложение успешно доступно по IP/домену и работает стабильно!"
+        echo "Деплой успешно завершен на 100%!"

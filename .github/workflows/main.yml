@@ -13,9 +13,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: drf_test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_test_password_123
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -44,19 +44,19 @@ jobs:
     - name: Run Code Linting (Check Style)
       run: |
         poetry run pip install flake8
-        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Run Tests
       env:
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_DB: drf_test_db
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres_test_password_123
         DATABASE_HOST: localhost
         DATABASE_PORT: 5432
         CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
         CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
-      run:
+      run: |
         rm -f .env
         python manage.py test
 

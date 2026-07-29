@@ -6,7 +6,7 @@ authors = [
     {name = "Ксения Рип",email = "ksucha.18.94@gmail.comProfile image"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "django (>=6.0.6,<7.0.0)",
     "djangorestframework (>=3.17.1,<4.0.0)",
@@ -14,7 +14,21 @@ dependencies = [
     "psycopg2-binary (>=2.9.12,<3.0.0)",
     "black (>=26.5.1,<27.0.0)",
     "pillow (>=12.2.0,<13.0.0)",
-    "isort (>=8.0.1,<9.0.0)"
+    "isort (>=8.0.1,<9.0.0)",
+    "django-filter (>=25.2,<26.0)",
+    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
+    "ipython (>=9.14.1,<10.0.0)",
+    "coverage (>=7.14.3,<8.0.0)",
+    "u (>=4.0,<5.0)",
+    "drf-yasg (>=1.21.15,<2.0.0)",
+    "stripe (>=15.3.0,<16.0.0)",
+    "celery (>=5.5.0)",
+    "django-celery-beat (>=2.9.0,<3.0.0)",
+    "poetry-core (>=2.0.0,<3.0.0)",
+    "redis (>=8.0.1,<9.0.0)",
+    "gunicorn (>=26.0.0,<27.0.0)",
+
+
 ]
 
 

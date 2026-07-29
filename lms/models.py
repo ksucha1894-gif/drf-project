@@ -18,6 +18,15 @@ class Course(models.Model):
         verbose_name="Превью",
         help_text="Загрузите превью курса",
     )
+    owner = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Владелец",
+        help_text="Укажите владельца курса",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Курс"
@@ -25,6 +34,9 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
+    course = models.ForeignKey(
+        Course, related_name="lessons", on_delete=models.CASCADE, null=True, blank=True
+    )
     name = models.CharField(
         max_length=150, verbose_name="Название", help_text="Укажите название урока"
     )
@@ -48,6 +60,15 @@ class Lesson(models.Model):
         blank=True,
         null=True,
     )
+    owner = models.ForeignKey(
+        "users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Владелец",
+        help_text="Укажите владельца урока",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Урок"

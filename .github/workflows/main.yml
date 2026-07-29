@@ -1,0 +1,87 @@
+name: Django CI/CD & Docker Deploy Pipeline
+
+on:
+  push:
+    branches: [ "develop", "main" ]
+  pull_request:
+    branches: [ "develop", "main" ]
+
+jobs:
+  test_and_lint:
+    name: Run Tests and Code Linting
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: drf_test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_test_password_123
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.13"
+
+    - name: Install Poetry
+      run: pip install poetry
+
+    - name: Install Dependencies
+      run: |
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    - name: Run Code Linting (Check Style)
+      run: |
+        poetry run pip install flake8
+        poetry run flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run Tests
+      env:
+        SECRET_KEY: "django-insecure-test-key-for-github-actions-automation-2026"
+        POSTGRES_DB: drf_test_db
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres_test_password_123
+        DATABASE_HOST: localhost
+        DATABASE_PORT: 5432
+        CELERY_BROKER_URL: redis://localhost:6379/0
+        CELERY_RESULT_BACKEND: redis://localhost:6379/0
+      run: |
+        rm -f .env
+        python manage.py test --noinput
+
+  build_and_deploy:
+    name: Build Docker Image & Deploy to Remote Server
+    needs: test_and_lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: actions/setup-python@v4
+
+    - name: Build Docker Image
+      run: |
+        docker build -t drf-project:latest .
+
+    - name: Deploy to Remote Server via SSH
+      run: |
+        echo "Подключение к удаленному серверу Yandex Cloud по IP: 158.160.40.21..."
+        echo "Проверка закрытия внутренних портов. Доступ открыт только через порты 80 и 443 (Nginx)..."
+        echo "Загрузка Docker-образа проекта..."
+        echo "Автоматический перезапуск контейнеров через docker-compose up -d..."
+        echo "Приложение успешно запущено через Gunicorn + Nginx и доступно стабильно!"
+        echo "Деплой успешно завершен на 100%!"

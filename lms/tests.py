@@ -85,7 +85,6 @@ class CourseTestCase(APITestCase):
             Course.objects.filter(id=self.course.id, owner=self.user).exists()
         )
 
-    @unittest.skip("Skip timezone test in CI/CD cloud pipeline")
     def test_getting_course_list(self):
         response = self.client.get(reverse("lms:course-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

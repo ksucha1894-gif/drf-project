@@ -21,4 +21,4 @@ RUN poetry install --no-root --no-interaction --no-ansi
 COPY . .
 
 # 8. Команда для запуска сервера разработки
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+CMD ["poetry", "run", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]

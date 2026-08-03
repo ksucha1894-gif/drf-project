@@ -43,11 +43,6 @@ jobs:
         poetry config virtualenvs.create false
         poetry install --no-root
 
-    - name: Run Code Linting (Check Style)
-      run: |
-        poetry run pip install flake8
-        poetry run flake8 . --count --max-complexity=10 --max-line-length=127 --statistics --exit-zero
-
     - name: Run Tests
       env:
         SECRET_KEY: "django-insecure-test-key-for-github-actions-automation-2026"

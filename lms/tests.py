@@ -1,3 +1,5 @@
+import unittest
+
 from django.contrib.auth.models import Group
 from django.urls import reverse
 from rest_framework import status
@@ -5,7 +7,6 @@ from rest_framework.test import APITestCase
 
 from lms.models import Course, Lesson
 from users.models import User
-import unittest
 
 
 class LessonTestCase(APITestCase):

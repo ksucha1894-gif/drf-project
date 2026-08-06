@@ -17,8 +17,8 @@ COPY pyproject.toml poetry.lock ./
 # 6. Устанавливаем все библиотеки проекта без venv (напрямую в систему контейнера)
 RUN poetry install --no-root --no-interaction --no-ansi
 
-# 7. Копируем весь остальной код твоего Django-проекта
+# 7. Копируем весь остальной код Django-проекта
 COPY . .
 
 # 8. Команда для запуска сервера разработки
-CMD ["sh", "-c", "poetry run python manage.py migrate && poetry run python manage.py collectstatic --noinput && poetry run gunicorn drf_project.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]

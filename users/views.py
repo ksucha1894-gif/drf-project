@@ -12,7 +12,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course
 from users.models import Payment, Subscription, User
-from users.services import create_stripe_price, create_stripe_session
+from users.services import create_stripe_product, create_stripe_price, create_stripe_session
+import stripe
 
 from .serializers import PaymentSerializer, UserSerializer
 

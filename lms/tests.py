@@ -1,5 +1,3 @@
-import unittest
-
 from django.contrib.auth.models import Group
 from django.urls import reverse
 from rest_framework import status
@@ -98,9 +96,10 @@ class CourseTestCase(APITestCase):
                 "owner": self.user.id,  # Идентификатор владельца
             }
         ]
-        # Динамически подставляем время из ответа сервера в эталонный словарь, исключая Time-Zone баг
+        # Проверяем строго существование ключа и его тип, фиксируя корректность времени!
         if response.json()["results"]:
-            expected_data[0]["updated_at"] = response.json()["results"][0]["updated_at"]
+            self.assertIn('updated_at', response.data)
+            self.assertTrue(isinstance(response.data['updated_at'], str))
         # Сравниваем только результаты
         self.assertEqual(response.json()["results"], expected_data)
 

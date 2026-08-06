@@ -3,13 +3,9 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
 from rest_framework.decorators import action
-from rest_framework.generics import (
-    CreateAPIView,
-    DestroyAPIView,
-    ListAPIView,
-    RetrieveAPIView,
-    UpdateAPIView,
-)
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -19,13 +15,11 @@ from lms.paginators import MyPagination
 from lms.tasks import send_latest_update, send_moderator_email
 from users.models import Subscription
 from users.permissions import IsModer, IsOwner
-from users.services import (
-    create_stripe_price,
-    create_stripe_product,
-    create_stripe_session,
-)
+from users.services import (create_stripe_price, create_stripe_product,
+                            create_stripe_session)
 
-from .serializers import CourseDetailSerializer, CourseSerializer, LessonSerializer
+from .serializers import (CourseDetailSerializer, CourseSerializer,
+                          LessonSerializer)
 
 
 @method_decorator(

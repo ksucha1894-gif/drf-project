@@ -98,8 +98,8 @@ class CourseTestCase(APITestCase):
         ]
         # Проверяем строго существование ключа и его тип, фиксируя корректность времени!
         if response.json()["results"]:
-            self.assertIn('updated_at', response.data)
-            self.assertTrue(isinstance(response.data['updated_at'], str))
+            self.assertIn("updated_at", response.data)
+            self.assertTrue(isinstance(response.data["updated_at"], str))
         # Сравниваем только результаты
         self.assertEqual(response.json()["results"], expected_data)
 

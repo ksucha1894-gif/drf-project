@@ -1,13 +1,12 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from celery import shared_task
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.db.models import Max
 from django.utils import timezone
 
-from lms.models import Lesson
+from lms.models import Course, Lesson, Subscription
 from users.models import User
 
 

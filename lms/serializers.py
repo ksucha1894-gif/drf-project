@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from .models import Course, Lesson
+from .models import Course, Lesson, Subscription
 from .validators import URLValidator
 
 

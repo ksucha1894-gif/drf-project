@@ -2,17 +2,21 @@ from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
+from rest_framework.decorators import action
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from lms.models import Course, Lesson
+from lms.models import Course, Lesson, Subscription
 from lms.paginators import MyPagination
 from lms.tasks import send_latest_update, send_moderator_email
 from users.models import Subscription
 from users.permissions import IsModer, IsOwner
+from users.services import (create_stripe_price, create_stripe_product,
+                            create_stripe_session)
 
 from .serializers import (CourseDetailSerializer, CourseSerializer,
                           LessonSerializer)
@@ -47,7 +51,7 @@ class CourseViewSet(ModelViewSet):
         emails = [sub.user.email for sub in subscribers]
         # Запускаем задачу Celery для отправки писем
         if emails:
-            send_moderator_email.delay(course_id)
+            send_moderator_email.delay(course.id)
 
     def get_permissions(self):
         if self.action == "create":
@@ -68,7 +72,26 @@ class CourseViewSet(ModelViewSet):
         emails = [sub.user.email for sub in subscribers]
         # Запускаем задачу Celery для отправки писем
         if emails:
-            send_moderator_email.delay(course_id)
+            send_moderator_email.delay(course.id)
+
+    @action(detail=True, methods=["post"])
+    def payment(self, request, pk=None):
+        """Эндпоинт для генерации ссылки на оплату курса через Stripe."""
+        course = self.get_object()
+        unit_amount = 500000  # 5000 рублей в копейках
+        product = create_stripe_product(
+            name=course.title, description=course.description
+        )
+        price = create_stripe_price(product_id=product.id, unit_amount=unit_amount)
+        session = create_stripe_session(price_id=price.id)
+        return Response(
+            {
+                "course": course.title,
+                "amount": unit_amount / 100,
+                "payment_url": session.url,
+                "session_id": session.id,
+            }
+        )
 
 
 class LessonCreateApiView(CreateAPIView):
@@ -88,7 +111,7 @@ class LessonCreateApiView(CreateAPIView):
         emails = [sub.user.email for sub in subscribers]
         # Запускаем задачу Celery для отправки писем
         if emails:
-            send_moderator_email.delay(course_id)
+            send_moderator_email.delay(course.id)
 
     def get_permissions(self):
         self.permission_classes = [~IsModer, IsAuthenticated]
@@ -137,7 +160,7 @@ class LessonRetrieveApiView(RetrieveAPIView):
         emails = [sub.user.email for sub in subscribers]
         # Запускаем задачу Celery для отправки писем
         if emails:
-            send_latest_update.delay(course_id)
+            send_latest_update.delay(course.id)
 
 
 class LessonUpdateApiView(UpdateAPIView):
@@ -163,7 +186,7 @@ class LessonUpdateApiView(UpdateAPIView):
         emails = [sub.user.email for sub in subscribers]
         # Запускаем задачу Celery для отправки писем
         if emails:
-            send_latest_update.delay(course_id)
+            send_latest_update.delay(course.id)
 
 
 class LessonDestroyApiView(DestroyAPIView):

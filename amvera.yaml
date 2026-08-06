@@ -1,0 +1,12 @@
+meta:
+  environment: docker
+  tool: docker
+
+build:
+  dockerfile: Dockerfile
+
+run:
+  persistence:
+    /data: data-volume
+  ports:
+    - containerPort: 8000

@@ -1,18 +1,19 @@
+import stripe
 from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import filters, status
+from rest_framework import status
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course
 from users.models import Payment, Subscription, User
-from users.services import create_stripe_price, create_stripe_session
+from users.services import (create_stripe_price, create_stripe_product,
+                            create_stripe_session)
 
 from .serializers import PaymentSerializer, UserSerializer
 
